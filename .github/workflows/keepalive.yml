@@ -2,8 +2,8 @@ name: Sosyal Medya Canlı Tutma Botu
 
 on:
   schedule:
-    - cron: '0 */12 * * *'  # Her 12 saatte bir çalışır
-  workflow_dispatch:        # Manuel çalıştırmak için
+    - cron: '0 */12 * * *'
+  workflow_dispatch:
 
 jobs:
   run-bot:
@@ -19,8 +19,8 @@ jobs:
       - name: Bağımlılıkları Yükle
         run: |
           pip install -r requirements.txt
-          playwright install chromium
-          playwright install-deps
+          # Playwright'ı manuel olarak yükle (dependencies ile birlikte)
+          playwright install --with-deps chromium
       
       - name: Botu Çalıştır
         env:
