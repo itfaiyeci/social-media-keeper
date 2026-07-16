@@ -119,8 +119,9 @@ class SocialMediaKeeper:
             return False
     
     def check_platform(self, platform_name, email, password, login_func):
-    """Tek bir platformu kontrol et"""
+    """Tek bir platformu kontrol et - HATA DETAYLI"""
     print(f"\n🔄 {platform_name.upper()} kontrol ediliyor...")
+    print(f"   📧 Email: {email[:3]}***{email[-3:] if len(email) > 6 else ''}")  # Email'in sadece bir kısmını göster
     
     try:
         with sync_playwright() as p:
@@ -133,24 +134,44 @@ class SocialMediaKeeper:
             )
             page = context.new_page()
             
+            # Sayfa yüklenme hatası için timeout ekleyelim
+            page.set_default_timeout(30000)  # 30 saniye
+            
             try:
                 success = login_func(page, email, password)
                 
                 if success:
                     duration = random.randint(30, 90)
-                    print(f"   👤 {duration} saniye geziniyor...")
+                    print(f"   ✅ Giriş başarılı! {duration} saniye geziniyor...")
                     self.do_human_activity(page, duration)
                     browser.close()
                     return "✅ Başarılı"
                 else:
+                    # Sayfanın mevcut URL'sini ve başlığını al
+                    try:
+                        current_url = page.url
+                        page_title = page.title()
+                        print(f"   ❌ Giriş başarısız!")
+                        print(f"   📍 Mevcut URL: {current_url}")
+                        print(f"   📄 Sayfa başlığı: {page_title}")
+                    except:
+                        pass
                     browser.close()
                     return "❌ Giriş başarısız"
+                    
             except Exception as e:
+                print(f"   ❌ Hata: {str(e)[:150]}")
+                try:
+                    # Ekran görüntüsü al (hata ayıklama için)
+                    page.screenshot(path=f"{platform_name}_error.png")
+                    print(f"   📸 Ekran görüntüsü kaydedildi: {platform_name}_error.png")
+                except:
+                    pass
                 browser.close()
-                print(f"   Hata detayı: {e}")
                 return f"❌ Hata: {str(e)[:80]}"
                 
     except Exception as e:
+        print(f"   ❌ Genel hata: {str(e)[:80]}")
         return f"❌ Hata: {str(e)[:50]}"
     
     def run_all(self):
