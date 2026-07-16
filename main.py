@@ -119,20 +119,21 @@ class SocialMediaKeeper:
             return False
     
     def check_platform(self, platform_name, email, password, login_func):
-        """Tek bir platformu kontrol et"""
-        print(f"\n🔄 {platform_name.upper()} kontrol ediliyor...")
-        
-        try:
-            with sync_playwright() as p:
-                browser = p.chromium.launch(
-                    headless=True,
-                    args=['--disable-blink-features=AutomationControlled']
-                )
-                context = browser.new_context(
-                    user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
-                )
-                page = context.new_page()
-                
+    """Tek bir platformu kontrol et"""
+    print(f"\n🔄 {platform_name.upper()} kontrol ediliyor...")
+    
+    try:
+        with sync_playwright() as p:
+            browser = p.chromium.launch(
+                headless=True,
+                args=['--disable-blink-features=AutomationControlled']
+            )
+            context = browser.new_context(
+                user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
+            )
+            page = context.new_page()
+            
+            try:
                 success = login_func(page, email, password)
                 
                 if success:
@@ -144,9 +145,13 @@ class SocialMediaKeeper:
                 else:
                     browser.close()
                     return "❌ Giriş başarısız"
-                    
-        except Exception as e:
-            return f"❌ Hata: {str(e)[:50]}"
+            except Exception as e:
+                browser.close()
+                print(f"   Hata detayı: {e}")
+                return f"❌ Hata: {str(e)[:80]}"
+                
+    except Exception as e:
+        return f"❌ Hata: {str(e)[:50]}"
     
     def run_all(self):
         """Tüm platformları kontrol et"""
