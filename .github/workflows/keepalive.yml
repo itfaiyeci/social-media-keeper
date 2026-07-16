@@ -7,7 +7,7 @@ on:
 
 jobs:
   run-bot:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     
     steps:
       - uses: actions/checkout@v4
@@ -19,7 +19,6 @@ jobs:
       - name: Bağımlılıkları Yükle
         run: |
           pip install -r requirements.txt
-          # Playwright'ı manuel olarak yükle (dependencies ile birlikte)
           playwright install --with-deps chromium
       
       - name: Botu Çalıştır
@@ -37,4 +36,4 @@ jobs:
           GMAIL_EMAIL: ${{ secrets.GMAIL_EMAIL }}
           GMAIL_PASSWORD: ${{ secrets.GMAIL_PASSWORD }}
           CHECK_INTERVAL_HOURS: 12
-        run: python main.py
+        run: python -u main.py   # ✅ -u flag'i EKLENDİ
